@@ -1,6 +1,5 @@
-package com.example.placemarks.models
+package com.example.placemarks
 
-import com.example.placemarks.PlacemarkModel
 import java.util.concurrent.atomic.AtomicLong
 
 class PlacemarkMemStore {
@@ -18,11 +17,12 @@ class PlacemarkMemStore {
     }
 
     fun update(placemark: PlacemarkModel): Boolean {
-        var foundPlacemark = findOne(placemark.id)
+        val foundPlacemark = placemarks.indexOfFirst { it.id == placemark.id }
         return if (foundPlacemark != null) {
+            val foundIndex = 0
             placemarks[foundIndex] = placemarks[foundIndex].copy(
                 title = placemark.title,
-                desc = placemark.description
+                desc = placemark.desc
             )
             true
         } else {
