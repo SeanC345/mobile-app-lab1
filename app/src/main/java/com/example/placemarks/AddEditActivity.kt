@@ -6,6 +6,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import timber.log.Timber
 
 class AddEditActivity : AppCompatActivity() {
 
@@ -123,6 +124,8 @@ class AddEditActivity : AppCompatActivity() {
 
             AppData.placedMarks.create(mark)
 
+            Timber.d("Created mark id=${mark.id}, title=${mark.title}")
+
             Toast.makeText(
                 this,
                 "Mark created",
@@ -140,6 +143,8 @@ class AddEditActivity : AppCompatActivity() {
             )
 
             AppData.placedMarks.update(mark)
+
+            Timber.d("Updated mark id=${mark.id}, title=${mark.title}")
 
             Toast.makeText(
                 this,
