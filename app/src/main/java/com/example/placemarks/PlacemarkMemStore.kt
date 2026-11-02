@@ -12,25 +12,28 @@ class PlacemarkMemStore {
     }
 
     fun create(placemark: PlacemarkModel) {
+        placemark.validate()
         placemark.id = lastId.incrementAndGet()
         placemarks.add(placemark)
     }
 
+
     fun update(placemark: PlacemarkModel): Boolean {
-        val foundPlacemark = placemarks.indexOfFirst { it.id == placemark.id }
+        placemark.validate()
+
+        val foundPlacemark = findOne(placemark.id)
         return if (foundPlacemark != null) {
-            val foundIndex = 0
-            placemarks[foundIndex] = placemarks[foundIndex].copy(
-                title = placemark.title,
-                desc = placemark.desc,
-                x = placemark.x,
-                y = placemark.y
-            )
+            foundPlacemark.title = placemark.title
+            foundPlacemark.desc = placemark.desc
+            foundPlacemark.x = placemark.x
+            foundPlacemark.y = placemark.y
+            foundPlacemark.imageUri = placemark.imageUri
             true
         } else {
             false
         }
     }
+
 
     fun delete(id: Long): Boolean {
         val foundPlacemark = findOne(id)

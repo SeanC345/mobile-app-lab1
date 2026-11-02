@@ -3,9 +3,11 @@ package com.example.placemarks
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import timber.log.Timber
+import android.net.Uri
 
 class PlacedMarkAdapter(
     private var marks: List<PlacemarkModel>,
@@ -23,6 +25,10 @@ class PlacedMarkAdapter(
 
         val coordinatesText: TextView =
             itemView.findViewById(R.id.coordinatesText)
+
+        val markImage: ImageView =
+            itemView.findViewById(R.id.markImage)
+
 
     }
 
@@ -67,6 +73,17 @@ class PlacedMarkAdapter(
             Timber.d("Mark long clicked id=${mark.id}, title=${mark.title}")
             listener.onMarkLongClick(mark)
         }
+
+        val imageUri = mark.imageUri
+
+        if (imageUri != null) {
+            holder.markImage.setImageURI(Uri.parse(imageUri))
+        } else {
+            holder.markImage.setImageResource(
+                android.R.drawable.ic_menu_gallery
+            )
+        }
+
     }
 
     override fun getItemCount(): Int {

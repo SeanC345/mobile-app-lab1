@@ -1,10 +1,13 @@
 package com.example.placemarks
 
+import android.net.Uri
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import timber.log.Timber
 
@@ -17,10 +20,38 @@ class AddEditActivity : AppCompatActivity() {
 
     private var editingId: Long? = null
 
+    private lateinit var imagePreview: ImageView
+    private var selectedImageUri: Uri? = null
+
+    private val imagePicker =
+        registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
+
+            if (uri != null) {
+
+                try {
+                    contentResolver.takePersistableUriPermission(
+                        uri,
+                        android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    )
+                } catch (_: SecurityException) {
+                    // Some providers may not grant persistable access.
+                }
+
+                selectedImageUri = uri
+                imagePreview.setImageURI(uri)
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_add_edit)
+
+        imagePreview = findViewById(R.id.imageViewAdd)
+
+        findViewById<Button>(R.id.imagePickButton).setOnClickListener {
+            imagePicker.launch(arrayOf("image/*"))
+        }
 
         titleInput =
             findViewById(R.id.titleInput)
@@ -46,8 +77,7 @@ class AddEditActivity : AppCompatActivity() {
 
         if (editingId != null) {
 
-            findViewById<TextView>(R.id.formTitle)
-                .text = "Edit Mark"
+            findViewById<TextView>(R.id.formTitle).text = "Edit Mark"
 
             loadExistingMark(editingId!!)
         }
@@ -82,6 +112,16 @@ class AddEditActivity : AppCompatActivity() {
         descriptionInput.setText(mark.desc)
         xInput.setText(mark.x.toString())
         yInput.setText(mark.y.toString())
+
+        selectedImageUri = mark.imageUri?.let { Uri.parse(it) }
+
+        if (selectedImageUri != null) {
+            imagePreview.setImageURI(selectedImageUri)
+        } else {
+            imagePreview.setImageResource(
+                android.R.drawable.ic_menu_gallery
+            )
+        }
     }
 
     private fun saveMark() {
@@ -113,44 +153,59 @@ class AddEditActivity : AppCompatActivity() {
             return
         }
 
-        if (editingId == null) {
+        try {
 
-            val mark = PlacemarkModel(
-                title = title,
-                desc = description,
-                x = x,
-                y = y
-            )
+            if (editingId == null) {
 
-            AppData.placedMarks.create(mark)
+                val mark = PlacemarkModel(
+                    title = title,
+                    desc = description,
+                    x = x,
+                    y = y,
+                    imageUri = selectedImageUri?.toString()
+                )
 
-            Timber.d("Created mark id=${mark.id}, title=${mark.title}")
+                AppData.placedMarks.create(mark)
+
+                Timber.d("Created mark id=${mark.id}, title=${mark.title}")
+
+                Toast.makeText(
+                    this,
+                    "Mark created",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+            } else {
+
+                val mark = PlacemarkModel(
+                    id = editingId!!,
+                    title = title,
+                    desc = description,
+                    x = x,
+                    y = y,
+                    imageUri = selectedImageUri?.toString()
+                )
+
+                AppData.placedMarks.update(mark)
+
+                Timber.d("Updated mark id=${mark.id}, title=${mark.title}")
+
+                Toast.makeText(
+                    this,
+                    "Mark updated",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+        } catch (e: IllegalArgumentException) {
 
             Toast.makeText(
                 this,
-                "Mark created",
+                e.message,
                 Toast.LENGTH_SHORT
             ).show()
 
-        } else {
-
-            val mark = PlacemarkModel(
-                id = editingId!!,
-                title = title,
-                desc = description,
-                x = x,
-                y = y
-            )
-
-            AppData.placedMarks.update(mark)
-
-            Timber.d("Updated mark id=${mark.id}, title=${mark.title}")
-
-            Toast.makeText(
-                this,
-                "Mark updated",
-                Toast.LENGTH_SHORT
-            ).show()
+            return
         }
 
         finish()
