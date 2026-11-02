@@ -6,6 +6,8 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.appcompat.app.AlertDialog
+import timber.log.Timber
 
 class MarkListActivity : AppCompatActivity() {
 
@@ -23,12 +25,16 @@ class MarkListActivity : AppCompatActivity() {
         adapter = PlacedMarkAdapter(
             marks = AppData.placedMarks.findAll(),
 
-            onEdit = { mark ->
-                editMark(mark)
-            },
+            listener = object : OnMarkListener {
 
-            onDelete = { mark ->
-                deleteMark(mark)
+                override fun onMarkClick(mark: PlacemarkModel) {
+                    editMark(mark)
+                }
+
+                override fun onMarkLongClick(mark: PlacemarkModel): Boolean {
+                    deleteMark(mark)
+                    return true
+                }
             }
         )
 
@@ -61,6 +67,8 @@ class MarkListActivity : AppCompatActivity() {
 
     private fun editMark(mark: PlacemarkModel) {
 
+        Timber.d("Editing mark id=${mark.id}, title=${mark.title}")
+
         val intent =
             Intent(this, AddEditActivity::class.java)
 
@@ -71,10 +79,20 @@ class MarkListActivity : AppCompatActivity() {
 
     private fun deleteMark(mark: PlacemarkModel) {
 
-        AppData.placedMarks.delete(mark.id)
+        AlertDialog.Builder(this)
+            .setTitle("Delete Mark")
+            .setMessage("Delete this mark?")
+            .setPositiveButton("Delete") { _, _ ->
 
-        adapter.updateMarks(
-            AppData.placedMarks.findAll()
-        )
+                Timber.d("Deleting mark id=${mark.id}, title=${mark.title}")
+
+                AppData.placedMarks.delete(mark.id)
+
+                adapter.updateMarks(
+                    AppData.placedMarks.findAll()
+                )
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 }
