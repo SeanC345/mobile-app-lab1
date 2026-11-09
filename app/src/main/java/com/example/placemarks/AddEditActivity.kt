@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import timber.log.Timber
+import android.content.Intent
 
 class AddEditActivity : AppCompatActivity() {
 
@@ -22,6 +23,9 @@ class AddEditActivity : AppCompatActivity() {
 
     private lateinit var imagePreview: ImageView
     private var selectedImageUri: Uri? = null
+
+    private var selectedLatitude: Double? = null
+    private var selectedLongitude: Double? = null
 
     private val imagePicker =
         registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
@@ -64,6 +68,41 @@ class AddEditActivity : AppCompatActivity() {
 
         yInput =
             findViewById(R.id.yInput)
+
+        val mapPicker =
+            registerForActivityResult(
+                ActivityResultContracts.StartActivityForResult()
+            ) { result ->
+                if (result.resultCode == RESULT_OK) {
+                    val data = result.data ?: return@registerForActivityResult
+
+                    selectedLatitude = data.getDoubleExtra("latitude", 0.0)
+                    selectedLongitude = data.getDoubleExtra("longitude", 0.0)
+
+                    selectedLatitude?.let {
+                        xInput.setText(it.toString())
+                    }
+
+                    selectedLongitude?.let {
+                        yInput.setText(it.toString())
+                    }
+                }
+            }
+
+        findViewById<Button>(R.id.buttonLoc).setOnClickListener {
+            val intent = Intent(this, MapPickerActivity::class.java)
+
+            xInput.text.toString().toDoubleOrNull()?.let {
+                intent.putExtra("latitude", it)
+            }
+
+            yInput.text.toString().toDoubleOrNull()?.let {
+                intent.putExtra("longitude", it)
+            }
+            intent.putExtra("title", titleInput.text.toString())
+
+            mapPicker.launch(intent)
+        }
 
         val saveButton =
             findViewById<Button>(R.id.saveButton)

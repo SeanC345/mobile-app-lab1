@@ -54,6 +54,12 @@
             android:inputType="numberDecimal"
             android:minHeight="48dp" />
 
+        <Button
+            android:id="@+id/buttonLoc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Select Location On Map" />
+
         <ImageView
             android:id="@+id/imageViewAdd"
             android:layout_width="match_parent"
