@@ -91,6 +91,16 @@ class AddEditActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.buttonLoc).setOnClickListener {
             val intent = Intent(this, MapPickerActivity::class.java)
+
+            xInput.text.toString().toDoubleOrNull()?.let {
+                intent.putExtra("latitude", it)
+            }
+
+            yInput.text.toString().toDoubleOrNull()?.let {
+                intent.putExtra("longitude", it)
+            }
+            intent.putExtra("title", titleInput.text.toString())
+
             mapPicker.launch(intent)
         }
 

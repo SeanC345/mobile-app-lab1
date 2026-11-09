@@ -74,13 +74,21 @@ class MapPickerActivity : AppCompatActivity() {
                     Marker.ANCHOR_CENTER,
                     Marker.ANCHOR_BOTTOM
                 )
+                icon = getDrawable(android.R.drawable.star_big_on)
             }
 
             map.overlays.add(marker)
         }
 
         marker?.position = point
-        marker?.title = "Selected location"
+
+        val markerTitle = intent.getStringExtra("title")
+
+        marker?.title = if (markerTitle.isNullOrBlank()) {
+            "Selected location"
+        } else {
+            markerTitle
+        }
 
         map.invalidate()
     }
