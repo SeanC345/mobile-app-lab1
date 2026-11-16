@@ -1,6 +1,8 @@
 package com.example.placemarks
 
-val store = PlacemarkMemStore()
+import java.io.File
+
+val store = PlacemarkMemStore(File("place_list.json"))
 
 fun main() {
     println("=== Placemark Console App (Lab 1) ===")
