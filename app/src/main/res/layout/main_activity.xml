@@ -50,4 +50,14 @@
         android:textAlignment="center"
         android:textSize="24sp" />
 
+    <Button
+        android:id="@+id/mapListButton"
+        android:layout_width="187dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_weight="1"
+        android:text="VIEW MAP"
+        android:textAlignment="center"
+        android:textSize="24sp" />
+
 </LinearLayout>
